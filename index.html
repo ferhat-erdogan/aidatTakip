@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0d1117">
+    <title>Aidat Takip | Ana Panel</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/main.css">
+    
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+
+    <div id="toast">
+        <div id="toastMain" class="flex flex-col items-center gap-2">
+            <i id="toastIcon" class="text-2xl mb-1"></i>
+            <span id="toastMsg" class="tracking-widest">...</span>
+        </div>
+        <div id="confirmActionBtns" class="hidden flex flex-col gap-2 w-full mt-4">
+            <button id="btnConfirmYes" class="w-full bg-[#ff3e3e] text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-tighter active:scale-95 shadow-lg shadow-red-900/20">
+                <i class="fa-solid fa-right-from-bracket mr-2"></i> OTURUMU KAPAT
+            </button>
+            <button onclick="closeToast()" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl font-black text-[11px] uppercase tracking-tighter active:scale-95">
+                VAZGEÇ
+            </button>
+        </div>
+    </div>
+
+    <div class="glass-card">
+        <div id="loader" class="absolute inset-0 bg-[#0d1117] z-[5000] hidden flex flex-col items-center justify-center rounded-[32px]">
+            <h1 class="italic font-black text-2xl uppercase">Aidat<span>Takip</span></h1>
+            <div class="w-32 h-1 bg-white/10 mt-4 rounded-full overflow-hidden">
+                <div id="loadFill" class="h-full bg-[#7cfc00] w-0 transition-all duration-300"></div>
+            </div>
+        </div>
+
+        <div id="appMain" class="hidden">
+            <header class="relative mb-4 text-center">
+                <i id="navBack" class="fa-solid fa-arrow-left absolute left-0 top-1/2 -translate-y-1/2 text-xl text-[#7cfc00] hidden cursor-pointer" onclick="goBack()"></i>
+                <h1>Aidat<span>Takip</span></h1>
+                <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-4">
+                    <!-- <label for="importFile" class="cursor-pointer text-dim"> -->
+                    <!--     <i class="fa-solid fa-file-import text-lg"></i> -->
+                    <!-- </label> -->
+                    <!-- <input type="file" id="importFile" class="hidden" accept=".json" onchange="triggerImport(event)"> -->
+                    <i class="fa-solid fa-power-off text-dim cursor-pointer" onclick="askLogout()"></i>
+                </div>
+            </header>
+
+            <div id="siteHeader" class="flex justify-between items-center py-4 border-t border-white/10 mt-2 mb-4">
+                <div id="displaySiteName" class="text-[13px] font-black opacity-50 uppercase">---</div>
+                <div id="displayAidatDay" class="text-[10px] font-black bg-[#7cfc00]/10 text-[#7cfc00] px-3 py-1 rounded-lg">---</div>
+            </div>
+
+            <div id="viewBlocks" class="space-y-3"></div>
+
+            <div id="viewUnits" class="hidden">
+                <div class="flex justify-between items-end mb-4">
+                    <div class="w-2/3">
+                        <div id="progressText" class="text-2xl font-black italic text-[#7cfc00]">0%</div>
+                        <div class="h-1.5 bg-white/5 rounded-full mt-2 overflow-hidden">
+                            <div id="progressBar" class="h-full bg-[#7cfc00] w-0 transition-all duration-700"></div>
+                        </div>
+                    </div>
+                    <div id="aidatInfo" class="text-[11px] font-black text-right uppercase">--</div>
+                </div>
+                <div id="blockTitle" class="text-[10px] font-black tracking-widest text-[#7cfc00] bg-[#7cfc00]/10 px-3 py-1 rounded inline-block mb-4 uppercase">-- BLOK</div>
+                <div class="relative mb-4">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-dim text-xs"></i>
+                    <input type="text" id="unitSearch" class="w-full bg-black/20 border border-white/5 rounded-xl py-3 pl-10 pr-4 text-xs font-bold" placeholder="İSİM VEYA TELEFON ARA..." oninput="filterUnits()">
+                </div>
+                <div id="unitGrid" class="unit-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="unitModal" class="modal-overlay">
+        <div id="modalSheet" class="modal-sheet">
+            <div class="flex justify-between items-center mb-8">
+                <h2 id="modalTitle" class="text-4xl font-black italic text-[#7cfc00]"></h2>
+                <button class="bg-green-600/20 text-green-500 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase flex items-center gap-2" onclick="sendReminder()">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> HATIRLAT
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="flex bg-black/30 p-1 rounded-xl">
+                    <div id="optOwner" class="flex-1 p-2 text-center text-[10px] font-black uppercase cursor-pointer rounded-lg" onclick="setOwnership('owner')">Mülk Sahibi</div>
+                    <div id="optTenant" class="flex-1 p-2 text-center text-[10px] font-black uppercase cursor-pointer rounded-lg" onclick="setOwnership('tenant')">Kiracı</div>
+                </div>
+
+                <div class="space-y-3">
+                    <input type="text" id="resName" class="input-box" placeholder="Ad Soyad">
+                    <div class="flex gap-2">
+                        <input type="tel" id="resPhone" class="input-box" placeholder="Telefon" oninput="updateQuickComm('res')">
+                        <a id="resCall" href="#" class="comm-btn"><i class="fa-solid fa-phone"></i></a>
+                        <a id="resWA" href="#" class="comm-btn"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <div id="ownerArea" class="hidden p-5 bg-black/40 rounded-3xl border border-white/5 space-y-4">
+                    <label class="text-orange-400 text-[10px] font-black uppercase italic">Mülk Sahibi Bilgileri</label>
+                    <input type="text" id="ownerName" class="input-box" placeholder="Sahibi Ad Soyad">
+                    <div class="flex gap-2">
+                        <input type="tel" id="ownerPhone" class="input-box" placeholder="Sahibi Telefon" oninput="updateQuickComm('owner')">
+                        <a id="ownerCall" href="#" class="comm-btn"><i class="fa-solid fa-phone"></i></a>
+                        <a id="ownerWA" href="#" class="comm-btn"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div class="bg-black/20 p-4 rounded-3xl border border-white/5">
+                    <div id="historyLog" class="space-y-1 h-64 overflow-y-auto pr-1"></div>
+                </div>
+
+                <button class="w-full bg-[#7cfc00] text-black p-5 rounded-2xl font-black text-sm uppercase active:scale-95" onclick="saveUnit()">KAYDET</button>
+                <button class="w-full py-2 opacity-30 font-bold text-[10px] uppercase active:opacity-100" onclick="closeModal('unitModal')">VAZGEÇ / KAPAT</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/core/cookie.js"></script>
+    <script src="js/core/toast.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/supabase.js"></script>
+    
+    <script src="js/modules/auth.js"></script>
+    
+    <script src="js/app.js"></script>
+</body>
+</html>
+

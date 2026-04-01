@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0d1117">
+    <title>Kurulum | Aidat Takip Sistemi</title>
+    
+    <!-- 3. Parti Kütüphaneler -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    
+    <!-- Ortak CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Config'e özel CSS -->
+    <link rel="stylesheet" href="css/config.css">
+</head>
+<body>
+
+    <!-- Toast Bildirimleri -->
+    <div id="toast">
+        <div id="toastMain" class="flex items-center gap-3">
+            <i id="toastIcon" class="fa-solid fa-circle-notch fa-spin"></i>
+            <span id="toastMsg">...</span>
+        </div>
+        <div id="confirmActionBtns" class="hidden flex gap-2 w-full mt-2">
+            <button id="btnConfirmYes" class="flex-1 bg-[#ff3e3e] text-white p-4 rounded-xl font-black text-[10px] uppercase active:scale-95">EVET</button>
+            <button onclick="closeToast()" class="flex-1 bg-white/10 p-4 rounded-xl font-black text-[10px] uppercase active:scale-95">İPTAL</button>
+        </div>
+    </div>
+
+    <div class="glass-card">
+        <!-- Yükleyici -->
+        <div id="loader" class="absolute inset-0 bg-[#0d1117] z-[5000] hidden flex flex-col items-center justify-center rounded-[32px]">
+            <h1 class="italic font-black text-2xl uppercase">Aidat<span>Takip</span></h1>
+            <div class="w-32 h-1 bg-white/10 mt-4 rounded-full overflow-hidden">
+                <div id="loadFill" class="h-full bg-[#7cfc00] w-0 transition-all duration-300"></div>
+            </div>
+        </div>
+
+        <!-- Kurulum Formu -->
+        <div id="configFormArea">
+            <div class="text-center mb-6">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-wrench"></i>
+                </div>
+                <h1>Kurulum<span>Ayarı</span></h1>
+                <p class="subtitle">SİSTEMİ YAPILANDIRIN</p>
+            </div>
+
+            <form id="configForm" onsubmit="handleConfigSubmit(event)">
+                <!-- Site Bilgileri -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fa-solid fa-building"></i>
+                        <span>SİTE BİLGİLERİ</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Site Adı</label>
+                        <input type="text" id="siteAdi" class="input-box" placeholder="Örn: Şehzade Evleri" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Bloklar (virgülle ayırın)</label>
+                        <input type="text" id="bloklar" class="input-box" placeholder="Örn: A, B, C, D" required>
+                        <p class="field-hint">Blok harflerini virgülle ayırarak yazın</p>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label class="form-label">Toplam Daire Sayısı</label>
+                            <input type="number" id="toplamDaire" class="input-box" placeholder="Örn: 32" min="1" required>
+                        </div>
+                        <div class="form-group half">
+                            <label class="form-label">Kattaki Daire Sayısı</label>
+                            <input type="number" id="katDaireSayisi" class="input-box" placeholder="Örn: 4" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Aidat Günü</label>
+                        <input type="number" id="aidatGunu" class="input-box" placeholder="Örn: 21" min="1" max="31" required>
+                        <p class="field-hint">Her ayın kaçında aidat ödenmesi gerektiği</p>
+                    </div>
+                </div>
+
+                <!-- Telegram Yedekleme (Opsiyonel) -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fa-brands fa-telegram"></i>
+                        <span>TELEGRAM YEDEKLEME (OPSİYONEL)</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Bot Token</label>
+                        <input type="text" id="telegramToken" class="input-box" placeholder="Bot Token">
+                        <p class="field-hint">Telegram BotFather'dan aldığınız token</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Chat ID</label>
+                        <input type="text" id="telegramChatId" class="input-box" placeholder="Chat ID">
+                        <p class="field-hint">Yedeklerin gönderileceği sohbet ID'si</p>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="tgBotDurum" checked>
+                            <span>Telegram yedeklemeyi aktif et</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Butonlar -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <span id="btnText">KURULUMU TAMAMLA</span>
+                        <span id="btnLoader" class="hidden"><span class="loading-spinner"></span></span>
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="logoutAndExit()">
+                        <i class="fa-solid fa-power-off mr-2"></i> ÇIKIŞ YAP
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ortak JS (Core) -->
+    <script src="js/core/cookie.js"></script>
+    <script src="js/core/toast.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/supabase.js"></script>
+    
+    <!-- Modüller -->
+    <script src="js/modules/auth.js"></script>
+    
+    <!-- Config'e özel JS -->
+    <script src="js/modules/config.js"></script>
+    <script src="js/modules/units.js"></script>
+    <script src="js/modules/payments.js"></script>
+    <script src="js/modules/blocks.js"></script>
+    <script src="js/modules/telegram.js"></script>
+    <script src="js/config.js"></script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+/* ========================================================
+   AİDAT TAKİP SİSTEMİ - INDEX SAYFASI ÖZEL STİLLER
+   Ana uygulama sayfasına özel stiller
+   ======================================================== */
+
+/* Ana uygulama container */
+#appMain {
+    transition: opacity 0.3s ease;
+}
+
+/* Yükleyici (Loader) stilleri */
+#loader {
+    background: var(--bg);
+    z-index: 5000;
+}
+
+#loader h1 {
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+}
+
+#loader h1 span {
+    color: var(--accent);
+}
+
+/* Header ve navigasyon */
+header {
+    margin-bottom: 1.5rem;
+}
+
+#navBack {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(124, 252, 0, 0.1);
+}
+
+#navBack:hover {
+    transform: scale(1.05);
+    background: rgba(124, 252, 0, 0.2);
+}
+
+#navBack:active {
+    transform: scale(0.95);
+}
+
+/* Site header bilgileri */
+#siteHeader {
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+#displaySiteName {
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+#displayAidatDay {
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+/* Blok listesi */
+#viewBlocks > div {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border);
+}
+
+#viewBlocks > div:hover {
+    background: rgba(124, 252, 0, 0.05);
+    transform: translateX(4px);
+}
+
+#viewBlocks > div:active {
+    transform: scale(0.98);
+}
+
+/* Daire grid alanı */
+#viewUnits {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* İlerleme çubuğu */
+#progressText {
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+#progressBar {
+    transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Blok başlığı */
+#blockTitle {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    display: inline-block;
+}
+
+/* Arama inputu */
+#unitSearch {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border) !important;
+    transition: all 0.2s ease;
+}
+
+#unitSearch:focus {
+    border-color: var(--accent) !important;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Daire grid */
+.unit-grid {
+    display: grid;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+/* Responsive grid ayarları */
+@media (max-width: 480px) {
+    .unit-grid {
+        gap: 8px;
+    }
+}
+
+/* Daire butonları (circle) */
+.circle {
+    transition: all 0.2s ease;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.circle:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.circle:active {
+    transform: scale(0.95);
+}
+
+/* Ödenmiş daireler */
+.circle.paid {
+    background: var(--accent-soft);
+    border-color: var(--accent) !important;
+    color: var(--accent);
+    box-shadow: 0 0 8px rgba(124, 252, 0, 0.2);
+}
+
+/* Gecikmiş daireler */
+.circle.overdue {
+    background: rgba(255, 62, 62, 0.15);
+    border-color: var(--danger) !important;
+    color: var(--danger);
+}
+
+/* Filtrelenmiş (dim) daireler */
+.circle.dim {
+    opacity: 0.2;
+    transform: scale(0.85);
+    pointer-events: none;
+    filter: blur(1px);
+}
+
+/* Modal içi stiller */
+#unitModal .modal-sheet {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#unitModal .modal-sheet::-webkit-scrollbar {
+    width: 4px;
+}
+
+#unitModal .modal-sheet::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+#unitModal .modal-sheet::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 4px;
+}
+
+/* Modal başlık */
+#modalTitle {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+/* Hatırlat butonu */
+button[onclick="sendReminder()"] {
+    transition: all 0.2s ease;
+}
+
+button[onclick="sendReminder()"]:hover {
+    transform: scale(1.02);
+    background: rgba(34, 197, 94, 0.3) !important;
+}
+
+/* Mülkiyet seçici */
+#optOwner, #optTenant {
+    transition: all 0.2s ease;
+}
+
+#optOwner:hover, #optTenant:hover {
+    background: rgba(124, 252, 0, 0.2);
+}
+
+/* Geçmiş kayıtları (history) */
+#historyLog {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) rgba(255, 255, 255, 0.05);
+}
+
+#historyLog::-webkit-scrollbar {
+    width: 4px;
+}
+
+#historyLog::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+#historyLog::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 4px;
+}
+
+.history-row {
+    transition: all 0.2s ease;
+    border-radius: 12px;
+    margin: 2px 0;
+    padding: 12px 12px;
+}
+
+.history-row:hover {
+    background: rgba(124, 252, 0, 0.05);
+    transform: translateX(4px);
+}
+
+.history-row:active {
+    transform: scale(0.98);
+}
+
+/* Butonlar */
+.w-full.bg-\\[\\#7cfc00\\] {
+    transition: all 0.2s ease;
+}
+
+.w-full.bg-\\[\\#7cfc00\\]:hover {
+    transform: scale(1.02);
+    filter: brightness(1.05);
+}
+
+.w-full.bg-\\[\\#7cfc00\\]:active {
+    transform: scale(0.98);
+}
+
+/* Vazgeç butonu */
+.w-full.py-2 {
+    transition: all 0.2s ease;
+}
+
+.w-full.py-2:hover {
+    opacity: 0.6 !important;
+}
+
+/* İthalat ve çıkış butonları */
+header .fa-file-import, header .fa-power-off {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+header .fa-file-import:hover, header .fa-power-off:hover {
+    color: var(--accent);
+    transform: scale(1.1);
+}
+
+header .fa-file-import:active, header .fa-power-off:active {
+    transform: scale(0.95);
+}
+
+/* Yardımcı sınıflar */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.transition-all {
+    transition: all 0.2s ease;
+}
+
+/* Animasyonlar */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading-pulse {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Responsive düzenlemeler */
+@media (max-width: 480px) {
+    #progressText {
+        font-size: 1.4rem;
+    }
+    
+    #modalTitle {
+        font-size: 1.8rem;
+    }
+    
+    .modal-sheet {
+        padding: 20px 16px;
+    }
+    
+    .history-row {
+        padding: 12px 8px;
+    }
+    
+    .history-row div {
+        font-size: 10px;
+    }
+    
+    .circle {
+        width: 42px;
+        height: 42px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .circle {
+        width: 38px;
+        height: 38px;
+        font-size: 0.75rem;
+    }
+    
+    .unit-grid {
+        gap: 6px;
+    }
+}
