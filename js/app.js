@@ -15,6 +15,18 @@ const currentYear = now.getFullYear();
 const currentDay = now.getDate();
 const monthNames = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 
+async function checkSessionBeforeAction() {
+    const isValid = await checkAuth();
+    if (!isValid) {
+        showErrorToast('Oturum süresi doldu! Lütfen tekrar giriş yapın.');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1500);
+        return false;
+    }
+    return true;
+}
+
 async function initApp() {
     try {
         showLoader(true);
@@ -57,7 +69,8 @@ async function initApp() {
         
     } catch (error) {
         console.error('Uygulama başlatma hatası:', error);
-        showErrorToast('Uygulama başlatılamadı!');
+        localStorage.clear();
+        window.location.href = 'login.html';
     } finally {
         showLoader(false);
     }
@@ -226,13 +239,14 @@ function refreshPaymentHistory(unitKey) {
 }
 
 async function togglePayment(unitKey, month, year, isPaid) {
+    if (!(await checkSessionBeforeAction())) return;
+    
     showProcessToast(isPaid ? "Ödeme siliniyor..." : "Ödeme kaydediliyor...");
     
     const success = await togglePaymentAPI(unitKey, month, year, isPaid);
     
     if (success) {
         if (!isPaid) {
-            // Veritabanından yeni eklenen ödemeyi al
             const sb = getSupabase();
             const { data: newPayment } = await sb
                 .from('tahsilatlar')
@@ -260,6 +274,8 @@ async function togglePayment(unitKey, month, year, isPaid) {
 }
 
 async function saveUnit() {
+    if (!(await checkSessionBeforeAction())) return;
+    
     showProcessToast("Kaydediliyor...");
     
     const unitKey = `${activeBlock}_${activeUnitIdx}`;
@@ -388,6 +404,8 @@ function showLoader(show) {
 }
 
 async function sendTelegramBackup() {
+    if (!(await checkSessionBeforeAction())) return;
+    
     const settings = await getSystemSettings();
     if (!settings || !settings.telegram_token || !settings.telegram_chat_id) {
         return;
@@ -396,7 +414,6 @@ async function sendTelegramBackup() {
     const sb = getSupabase();
     if (!sb) return;
     
-    // Supabase URL'yi doğrudan sb objesinden al
     const supabaseUrl = sb.supabaseUrl || 'Belirtilmemiş';
     
     const { data: { user } } = await sb.auth.getUser();
@@ -466,6 +483,8 @@ function triggerImport(event) {
 }
 
 async function finalizeImport(file) {
+    if (!(await checkSessionBeforeAction())) return;
+    
     showProcessToast("Veriler işleniyor...");
     
     const reader = new FileReader();

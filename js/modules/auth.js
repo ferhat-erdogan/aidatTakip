@@ -79,22 +79,23 @@ async function logout() {
  */
 async function checkAuth() {
     try {
-        // Cookie'de URL ve key var mı?
         const { url, key } = getAuthCookies();
         if (!url || !key) {
             return false;
         }
         
-        // Supabase istemcisini başlat
         if (!initSupabase(url, key)) {
             return false;
         }
         
-        // Supabase Auth oturumunu kontrol et
-        const hasSession = await checkAuthSession();
+        const sb = getSupabase();
+        if (!sb) return false;
         
-        if (!hasSession) {
-            // Oturum yoksa cookie'leri temizle
+        // Kullanıcıyı doğrula - eğer kullanıcı silinmişse hata döner
+        const { data: { user }, error } = await sb.auth.getUser();
+        
+        if (error || !user) {
+            // Kullanıcı geçersiz, cookie'leri temizle
             clearAuthCookies();
             return false;
         }
@@ -103,6 +104,7 @@ async function checkAuth() {
         
     } catch (error) {
         console.error('Auth kontrol hatası:', error);
+        clearAuthCookies();
         return false;
     }
 }
